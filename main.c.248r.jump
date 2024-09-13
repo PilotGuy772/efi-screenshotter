@@ -1,0 +1,146 @@
+
+;; Function efi_main (efi_main, funcdef_no=0, decl_uid=5927, cgraph_uid=1, symbol_order=0)
+
+
+3 basic blocks, 2 edges.
+;; basic block 0, loop depth 0, maybe hot
+;;  prev block (nil), next block 2, flags: (RTL)
+;;  pred:      
+;;  succ:       2 (FALLTHRU)
+
+;; basic block 2, loop depth 0, maybe hot
+;;  prev block 0, next block 1, flags: (NEW, REACHABLE, RTL)
+;;  pred:       ENTRY (FALLTHRU)
+(note 5 0 2 2 [bb 2] NOTE_INSN_BASIC_BLOCK)
+(insn 2 5 3 2 (set (mem/f/c:DI (plus:DI (reg/f:DI 19 frame)
+                (const_int -8 [0xfffffffffffffff8])) [1 imageHandle+0 S8 A64])
+        (reg:DI 5 di [ imageHandle ])) "main.c":7:1 74 {*movdi_internal}
+     (nil))
+(insn 3 2 4 2 (set (mem/f/c:DI (plus:DI (reg/f:DI 19 frame)
+                (const_int -16 [0xfffffffffffffff0])) [2 systemTable+0 S8 A64])
+        (reg:DI 4 si [ systemTable ])) "main.c":7:1 74 {*movdi_internal}
+     (nil))
+(note 4 3 7 2 NOTE_INSN_FUNCTION_BEG)
+(insn 7 4 8 2 (set (reg:DI 84)
+        (mem/f/c:DI (plus:DI (reg/f:DI 19 frame)
+                (const_int -16 [0xfffffffffffffff0])) [2 systemTable+0 S8 A64])) "main.c":8:5 74 {*movdi_internal}
+     (nil))
+(insn 8 7 9 2 (set (reg:DI 85)
+        (mem/f/c:DI (plus:DI (reg/f:DI 19 frame)
+                (const_int -8 [0xfffffffffffffff8])) [1 imageHandle+0 S8 A64])) "main.c":8:5 74 {*movdi_internal}
+     (nil))
+(insn 9 8 10 2 (set (reg:DI 4 si)
+        (reg:DI 84)) "main.c":8:5 74 {*movdi_internal}
+     (nil))
+(insn 10 9 11 2 (set (reg:DI 5 di)
+        (reg:DI 85)) "main.c":8:5 74 {*movdi_internal}
+     (nil))
+(call_insn 11 10 12 2 (call (mem:QI (symbol_ref:DI ("InitializeLib") [flags 0x41]  <function_decl 0x7fc79facde00 InitializeLib>) [0 InitializeLib S1 A8])
+        (const_int 0 [0])) "main.c":8:5 813 {*call}
+     (nil)
+    (expr_list:DI (use (reg:DI 5 di))
+        (expr_list:DI (use (reg:DI 4 si))
+            (nil))))
+(insn 12 11 13 2 (set (reg:DI 86)
+        (symbol_ref/f:DI ("*.LC0") [flags 0x2]  <var_decl 0x7fc79faea5a0 *.LC0>)) "main.c":10:5 74 {*movdi_internal}
+     (nil))
+(insn 13 12 14 2 (set (reg:DI 5 di)
+        (reg:DI 86)) "main.c":10:5 74 {*movdi_internal}
+     (expr_list:REG_EQUAL (symbol_ref/f:DI ("*.LC0") [flags 0x2]  <var_decl 0x7fc79faea5a0 *.LC0>)
+        (nil)))
+(insn 14 13 15 2 (set (reg:QI 0 ax)
+        (const_int 0 [0])) "main.c":10:5 77 {*movqi_internal}
+     (nil))
+(call_insn 15 14 16 2 (set (reg:DI 0 ax)
+        (call (mem:QI (symbol_ref:DI ("Print") [flags 0x41]  <function_decl 0x7fc79fafb100 Print>) [0 Print S1 A8])
+            (const_int 0 [0]))) "main.c":10:5 824 {*call_value}
+     (nil)
+    (expr_list (use (reg:QI 0 ax))
+        (expr_list:DI (use (reg:DI 5 di))
+            (nil))))
+(insn 16 15 19 2 (set (reg:DI 82 [ _6 ])
+        (const_int 0 [0])) "main.c":11:12 74 {*movdi_internal}
+     (nil))
+(insn 19 16 23 2 (set (reg:DI 83 [ <retval> ])
+        (reg:DI 82 [ _6 ])) "main.c":11:12 74 {*movdi_internal}
+     (nil))
+(insn 23 19 24 2 (set (reg/i:DI 0 ax)
+        (reg:DI 83 [ <retval> ])) "main.c":12:1 74 {*movdi_internal}
+     (nil))
+(insn 24 23 0 2 (use (reg/i:DI 0 ax)) "main.c":12:1 -1
+     (nil))
+;;  succ:       EXIT [always]  (FALLTHRU)
+
+;; basic block 1, loop depth 0, maybe hot
+;;  prev block 2, next block (nil), flags: (REACHABLE, RTL)
+;;  pred:       2 [always]  (FALLTHRU)
+;;  succ:      
+
+
+
+
+try_optimize_cfg iteration 1
+
+;; basic block 2, loop depth 0, maybe hot
+;;  prev block 0, next block 1, flags: (NEW, REACHABLE, RTL)
+;;  pred:       ENTRY (FALLTHRU)
+(note 5 0 2 2 [bb 2] NOTE_INSN_BASIC_BLOCK)
+(insn 2 5 3 2 (set (mem/f/c:DI (plus:DI (reg/f:DI 19 frame)
+                (const_int -8 [0xfffffffffffffff8])) [1 imageHandle+0 S8 A64])
+        (reg:DI 5 di [ imageHandle ])) "main.c":7:1 74 {*movdi_internal}
+     (nil))
+(insn 3 2 4 2 (set (mem/f/c:DI (plus:DI (reg/f:DI 19 frame)
+                (const_int -16 [0xfffffffffffffff0])) [2 systemTable+0 S8 A64])
+        (reg:DI 4 si [ systemTable ])) "main.c":7:1 74 {*movdi_internal}
+     (nil))
+(note 4 3 7 2 NOTE_INSN_FUNCTION_BEG)
+(insn 7 4 8 2 (set (reg:DI 84)
+        (mem/f/c:DI (plus:DI (reg/f:DI 19 frame)
+                (const_int -16 [0xfffffffffffffff0])) [2 systemTable+0 S8 A64])) "main.c":8:5 74 {*movdi_internal}
+     (nil))
+(insn 8 7 9 2 (set (reg:DI 85)
+        (mem/f/c:DI (plus:DI (reg/f:DI 19 frame)
+                (const_int -8 [0xfffffffffffffff8])) [1 imageHandle+0 S8 A64])) "main.c":8:5 74 {*movdi_internal}
+     (nil))
+(insn 9 8 10 2 (set (reg:DI 4 si)
+        (reg:DI 84)) "main.c":8:5 74 {*movdi_internal}
+     (nil))
+(insn 10 9 11 2 (set (reg:DI 5 di)
+        (reg:DI 85)) "main.c":8:5 74 {*movdi_internal}
+     (nil))
+(call_insn 11 10 12 2 (call (mem:QI (symbol_ref:DI ("InitializeLib") [flags 0x41]  <function_decl 0x7fc79facde00 InitializeLib>) [0 InitializeLib S1 A8])
+        (const_int 0 [0])) "main.c":8:5 813 {*call}
+     (nil)
+    (expr_list:DI (use (reg:DI 5 di))
+        (expr_list:DI (use (reg:DI 4 si))
+            (nil))))
+(insn 12 11 13 2 (set (reg:DI 86)
+        (symbol_ref/f:DI ("*.LC0") [flags 0x2]  <var_decl 0x7fc79faea5a0 *.LC0>)) "main.c":10:5 74 {*movdi_internal}
+     (nil))
+(insn 13 12 14 2 (set (reg:DI 5 di)
+        (reg:DI 86)) "main.c":10:5 74 {*movdi_internal}
+     (expr_list:REG_EQUAL (symbol_ref/f:DI ("*.LC0") [flags 0x2]  <var_decl 0x7fc79faea5a0 *.LC0>)
+        (nil)))
+(insn 14 13 15 2 (set (reg:QI 0 ax)
+        (const_int 0 [0])) "main.c":10:5 77 {*movqi_internal}
+     (nil))
+(call_insn 15 14 16 2 (set (reg:DI 0 ax)
+        (call (mem:QI (symbol_ref:DI ("Print") [flags 0x41]  <function_decl 0x7fc79fafb100 Print>) [0 Print S1 A8])
+            (const_int 0 [0]))) "main.c":10:5 824 {*call_value}
+     (nil)
+    (expr_list (use (reg:QI 0 ax))
+        (expr_list:DI (use (reg:DI 5 di))
+            (nil))))
+(insn 16 15 19 2 (set (reg:DI 82 [ _6 ])
+        (const_int 0 [0])) "main.c":11:12 74 {*movdi_internal}
+     (nil))
+(insn 19 16 23 2 (set (reg:DI 83 [ <retval> ])
+        (reg:DI 82 [ _6 ])) "main.c":11:12 74 {*movdi_internal}
+     (nil))
+(insn 23 19 24 2 (set (reg/i:DI 0 ax)
+        (reg:DI 83 [ <retval> ])) "main.c":12:1 74 {*movdi_internal}
+     (nil))
+(insn 24 23 0 2 (use (reg/i:DI 0 ax)) "main.c":12:1 -1
+     (nil))
+;;  succ:       EXIT [always]  (FALLTHRU)
+
